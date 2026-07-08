@@ -55,6 +55,11 @@ const apiEndpointSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    
+     isFavorite: {
+      type: Boolean,
+      default: false,
+    },
 
     owner: {
       type: mongoose.Schema.Types.ObjectId,
