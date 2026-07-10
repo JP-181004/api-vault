@@ -1,0 +1,157 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111827;
+  color: white;
+}
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 380px;
+  background: #1f2937;
+  padding: 32px;
+  border-radius: 12px;
+}
+
+.auth-card h1 {
+  margin-bottom: 8px;
+}
+
+.auth-card p {
+  color: #cbd5e1;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+}
+
+.auth-card button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #7c3aed;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.auth-card a {
+  color: #a78bfa;
+}
+
+.error {
+  background: #7f1d1d;
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+.page {
+  padding: 40px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 30px 0;
+}
+
+.stat-card,
+.list-card {
+  background: #1f2937;
+  padding: 22px;
+  border-radius: 12px;
+}
+
+.stat-card h2 {
+  font-size: 36px;
+  margin: 0;
+  color: #a78bfa;
+}
+
+.list-card {
+  margin-bottom: 14px;
+}
+
+.list-card span {
+  display: inline-block;
+  margin-left: 12px;
+  background: #7c3aed;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.inline-form {
+  display: flex;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.inline-form input {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  width: 300px;
+}
+
+.inline-form button,
+.list-card button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #7c3aed;
+  color: white;
+  cursor: pointer;
+}
+
+.list-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.api-form {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 12px;
+  margin: 30px 0;
+  max-width: 800px;
+}
+
+.api-form input,
+.api-form select,
+.api-form textarea {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+.api-form textarea {
+  grid-column: span 2;
+  min-height: 90px;
+}
+
+.api-form button {
+  grid-column: span 2;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #7c3aed;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
