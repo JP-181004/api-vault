@@ -4,7 +4,7 @@ const healthRoutes = require("./routes/healthRoutes");
 const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require("./routes/apiRoutes");
 const express = require("express");
-
+const testRoutes = require("./routes/testRoutes");
 
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -22,6 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/collections", collectionRoutes);
 app.use("/api/apis", apiRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/test", testRoutes);
 
 const PORT = process.env.PORT || 5000;
 

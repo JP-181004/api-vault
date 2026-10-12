@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Collections from "./pages/Collections";
 import Apis from "./pages/Apis";
+import Workspace from "./pages/Workspace";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/collections" element={<Collections />} />
         <Route path="/apis" element={<Apis />} />
+        <Route path="/workspace" element={<Workspace />} />
       </Routes>
     </BrowserRouter>
   );
