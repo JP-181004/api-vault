@@ -59,7 +59,14 @@ function Workspace() {
   const [requestError, setRequestError] = useState("");
 
   const [loading, setLoading] = useState(false);
+ const [requestName, setRequestName] = useState("");
 
+const [savedRequests, setSavedRequests] = useState(() => {
+  return JSON.parse(localStorage.getItem("apiVaultSavedRequests") || "[]");
+});
+const [requestHistory, setRequestHistory] = useState(() => {
+  return JSON.parse(localStorage.getItem("apiVaultRequestHistory") || "[]");
+});
   const updateRow = (setter, rows, index, field, value) => {
 
     setter(
@@ -182,6 +189,25 @@ const handleSend = async () => {
         body: formattedBody,
         headers: Object.entries(result.data.headers || {}),
       });
+      const historyItem = {
+  id: Date.now(),
+  method,
+  url: requestUrl.toString(),
+  status: result.data.status,
+  time: elapsed,
+  timestamp: new Date().toLocaleString(),
+};
+
+setRequestHistory((prev) => {
+  const updated = [historyItem, ...prev].slice(0, 50);
+
+  localStorage.setItem(
+    "apiVaultRequestHistory",
+    JSON.stringify(updated)
+  );
+
+  return updated;
+});
     } catch (error) {
       setRequestError(
         error.response?.data?.message ||
@@ -227,13 +253,15 @@ const handleSend = async () => {
 
           <div className="request-card-heading">
 
-            <div className="request-title">
-
-              <Code2 size={19} />
-
-              <span>New Request</span>
-
-            </div>
+           <div className="request-title">
+  <Code2 size={19} />
+  <input
+    type="text"
+    placeholder="Request name"
+    value={requestName}
+    onChange={(e) => setRequestName(e.target.value)}
+  />
+</div>
 
             <span className="request-badge">HTTP</span>
 
@@ -300,8 +328,45 @@ const handleSend = async () => {
               <Send size={16} />
 
               {loading ? "Sending..." : "Send"}
-
+             
             </button>
+            <button
+  className="send-button"
+  onClick={() => {
+    if (!requestName.trim() || !url.trim()) {
+      alert("Enter a request name and URL first.");
+      return;
+    }
+
+    setSavedRequests((prev) => {
+  const updated = [
+    ...prev,
+    {
+      id: Date.now(),
+      name: requestName,
+      method,
+      url,
+      params,
+      headers,
+      body,
+      bodyType,
+    },
+  ];
+
+  localStorage.setItem(
+    "apiVaultSavedRequests",
+    JSON.stringify(updated)
+  );
+
+  return updated;
+});
+    alert("Request saved!");
+  }}
+>
+  Save Request
+</button>
+
+
 
           </div>
 
@@ -476,7 +541,86 @@ const handleSend = async () => {
           </div>
 
         </section>
+        <section className="response-card">
+  <div className="response-heading">
+    <div className="request-title">
+      <Clock size={19} />
+      <span>Saved Requests ({savedRequests.length})</span>
+    </div>
+  </div>
 
+  {savedRequests.length === 0 ? (
+    <p>No saved requests yet.</p>
+  ) : (
+    savedRequests.map((req) => (
+      <div key={req.id} className="saved-request-item">
+        <strong>{req.name}</strong>
+        <span>{req.method}</span>
+        <span>{req.url}</span>
+
+        <button
+          onClick={() => {
+            setMethod(req.method);
+            setUrl(req.url);
+            setParams(req.params);
+            setHeaders(req.headers);
+            setBody(req.body);
+            setBodyType(req.bodyType);
+          }}
+        >
+          Load
+        </button>
+      </div>
+    ))
+  )}
+</section>
+<section className="response-card">
+  <div className="response-heading">
+    <div className="request-title">
+      <Clock size={19} />
+      <span>Request History ({requestHistory.length})</span>
+    </div>
+
+    {requestHistory.length > 0 && (
+      <button
+        className="send-button"
+        onClick={() => {
+          setRequestHistory([]);
+          localStorage.removeItem("apiVaultRequestHistory");
+        }}
+      >
+        Clear History
+      </button>
+    )}
+  </div>
+
+  {requestHistory.length === 0 ? (
+    <p>No requests yet.</p>
+  ) : (
+    requestHistory.map((item) => (
+  <div key={item.id} className="saved-request-item">
+    <div className="history-item-info">
+      <div className="history-item-meta">
+        <strong>{item.method}</strong>
+        <span>{item.status}</span>
+        <span>{item.time} ms</span>
+      </div>
+
+      <div className="history-item-url">{item.url}</div>
+      <small>{item.timestamp}</small>
+    </div>
+
+    <button
+      onClick={() => {
+        setMethod(item.method);
+        setUrl(item.url);
+      }}
+    >
+      Load
+    </button>
+  </div>
+)))}
+</section>
         <section className="response-card">
 
           <div className="response-heading">

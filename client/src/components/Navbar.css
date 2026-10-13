@@ -4,11 +4,14 @@
   z-index: 100;
   display: flex;
   width: 240px;
+  height: 100vh;
   padding: 24px 14px;
   flex-direction: column;
   color: white;
   background: linear-gradient(180deg, #111d35 0%, #0c172a 100%);
   box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-logo {
@@ -20,16 +23,19 @@
   text-decoration: none;
   font-size: 23px;
   font-weight: 750;
+  flex-shrink: 0;
 }
 
 .sidebar-logo svg {
   color: #5068ff;
+  flex-shrink: 0;
 }
 
 .sidebar-navigation {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 
 .sidebar-link {
@@ -41,7 +47,12 @@
   color: #e4e9f3;
   text-decoration: none;
   font-size: 15px;
+  white-space: nowrap;
   transition: 0.2s ease;
+}
+
+.sidebar-link svg {
+  flex-shrink: 0;
 }
 
 .sidebar-link:hover {
@@ -57,6 +68,7 @@
 
 .sidebar-bottom {
   margin-top: auto;
+  flex-shrink: 0;
 }
 
 .logout-button {
@@ -81,10 +93,13 @@
 
 @media (max-width: 760px) {
   .sidebar {
-    position: static;
+    position: relative;
+    inset: auto;
     width: 100%;
+    height: auto;
     min-height: auto;
     padding: 15px;
+    overflow: visible;
   }
 
   .sidebar-logo {
@@ -94,6 +109,7 @@
   .sidebar-navigation {
     flex-direction: row;
     overflow-x: auto;
+    padding-bottom: 6px;
   }
 
   .sidebar-link {
