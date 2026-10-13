@@ -1566,3 +1566,287 @@
     font-size: 12px;
   }
 }
+
+/* =========================================
+   ENVIRONMENT SELECTOR — API TESTING
+   ========================================= */
+
+.environments-card {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.environments-card .response-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #edf0f7;
+}
+
+.environments-card .request-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #252b40;
+}
+
+.environments-card .environment-selector {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px 24px;
+  background: #ffffff;
+}
+
+.environments-card .environment-selector label {
+  display: inline-flex;
+  align-items: center;
+  color: #505870;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.environments-card .environment-selector select {
+  min-width: 190px;
+  max-width: 100%;
+  height: 42px;
+  padding: 0 38px 0 14px;
+  border: 1px solid #dfe3ef;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #292e43;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.environments-card .environment-selector select:hover {
+  border-color: #8b7cf6;
+}
+
+.environments-card .environment-selector select:focus {
+  border-color: #6554e8;
+  box-shadow: 0 0 0 3px rgba(101, 84, 232, 0.12);
+}
+
+.environments-card .environment-variable-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #e6e2ff;
+  border-radius: 20px;
+  background: #f6f4ff;
+  color: #6554e8;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Environment manager spacing */
+
+.environments-card .environment-manager {
+  padding: 22px 24px;
+  border-top: 1px solid #edf0f7;
+  background: #fafbff;
+}
+
+.environments-card .environment-manager h3 {
+  margin: 0 0 18px;
+  color: #252b40;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.environments-card .environment-create-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.environments-card .environment-create-form input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #dfe3ef;
+  border-radius: 10px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.environments-card .environment-manager-item {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid #e5e8f2;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.environments-card .environment-manager-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.environments-card .environment-manager-heading input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #dfe3ef;
+  border-radius: 9px;
+  color: #292e43;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.environments-card .environment-variables-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.environments-card .environment-variables-heading strong {
+  color: #343a50;
+  font-size: 13px;
+}
+
+/* Variable rows */
+
+.environments-card .environment-variable-row {
+  display: grid;
+  grid-template-columns: 24px minmax(140px, 0.8fr) minmax(180px, 1.5fr) 38px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.environments-card .environment-variable-row input:not([type="checkbox"]) {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #dfe3ef;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #292e43;
+  font-family: inherit;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.environments-card .environment-variable-row input:focus,
+.environments-card .environment-manager-heading input:focus,
+.environments-card .environment-create-form input:focus {
+  border-color: #6554e8;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(101, 84, 232, 0.1);
+}
+
+.environments-card .environment-variable-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #6554e8;
+  cursor: pointer;
+  justify-self: center;
+}
+
+.environments-card .editor-hint {
+  margin-top: 14px;
+  color: #8a92aa;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.environments-card .editor-hint code {
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #f1efff;
+  color: #6554e8;
+  font-size: 12px;
+}
+
+/* Responsive layout */
+
+@media (max-width: 768px) {
+  .environments-card .response-heading {
+    padding: 16px;
+  }
+
+  .environments-card .environment-selector {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .environments-card .environment-selector select {
+    width: 100%;
+  }
+
+  .environments-card .environment-manager {
+    padding: 16px;
+  }
+
+  .environments-card .environment-manager-item {
+    padding: 14px;
+  }
+
+  .environments-card .environment-variable-row {
+    grid-template-columns: 24px minmax(0, 1fr) 36px;
+    gap: 9px;
+  }
+
+  .environments-card .environment-variable-row input:nth-of-type(2) {
+    grid-column: 2;
+  }
+
+  .environments-card .environment-variable-row input:nth-of-type(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .environments-card .environment-variable-row button {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .environments-card .environment-create-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .environments-card .environment-create-form button {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .environments-card .response-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .environments-card .environment-variables-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

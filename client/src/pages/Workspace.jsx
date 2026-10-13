@@ -1,4 +1,5 @@
-import { useState } from "react";
+Workspace.jsx
+import { useEffect, useRef, useState } from "react";
 
 import api from "../api/axios";
 
@@ -59,6 +60,7 @@ function Workspace() {
   const [requestError, setRequestError] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const responseRef = useRef(null);
  const [requestName, setRequestName] = useState("");
 
 const [savedRequests, setSavedRequests] = useState(() => {
@@ -67,6 +69,44 @@ const [savedRequests, setSavedRequests] = useState(() => {
 const [requestHistory, setRequestHistory] = useState(() => {
   return JSON.parse(localStorage.getItem("apiVaultRequestHistory") || "[]");
 });
+
+  const [environments, setEnvironments] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("apiVaultEnvironments") || "null");
+      return Array.isArray(stored) && stored.length > 0 ? stored : [
+        { id: "development", name: "Development", variables: [{ key: "BASE_URL", value: "https://jsonplaceholder.typicode.com", enabled: true }] },
+        { id: "staging", name: "Staging", variables: [] },
+        { id: "production", name: "Production", variables: [] },
+      ];
+    } catch {
+      return [
+        { id: "development", name: "Development", variables: [{ key: "BASE_URL", value: "https://jsonplaceholder.typicode.com", enabled: true }] },
+        { id: "staging", name: "Staging", variables: [] },
+        { id: "production", name: "Production", variables: [] },
+      ];
+    }
+  });
+  const [activeEnvironmentId, setActiveEnvironmentId] = useState(() =>
+    localStorage.getItem("apiVaultActiveEnvironment") || "development"
+  );
+  const activeEnvironment = environments.find((item) => item.id === activeEnvironmentId) || environments[0];
+
+  const resolveEnvironmentVariables = (value) => String(value ?? "").replace(/\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}/g, (match, key) => {
+    const variable = activeEnvironment?.variables?.find((item) => item.enabled && item.key.trim() === key);
+    if (!variable) throw new Error(`Undefined or disabled environment variable: {{${key}}}`);
+    return variable.value;
+  });
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (response || requestError) {
+      responseRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [response, requestError, loading]);
   const updateRow = (setter, rows, index, field, value) => {
 
     setter(
@@ -89,7 +129,7 @@ const [requestHistory, setRequestHistory] = useState(() => {
 
   const removeRow = (setter, rows, index) => {
 
-    setter(rows.filter((_, rowIndex) => rowIndex !== index));
+    setter(rows.filter((_, rowIndex) => rowIndex !==index));
 
   };
 
@@ -102,9 +142,11 @@ const handleSend = async () => {
       return;
     }
 
+    let resolvedUrl;
     let parsedUrl;
     try {
-      parsedUrl = new URL(url.trim());
+      resolvedUrl = resolveEnvironmentVariables(url.trim());
+      parsedUrl = new URL(resolvedUrl);
     } catch {
       setRequestError("Enter a valid absolute URL, including https://.");
       return;
@@ -128,11 +170,14 @@ const handleSend = async () => {
     const startedAt = performance.now();
 
     try {
-      const requestUrl = new URL(url.trim());
+      const requestUrl = new URL(resolvedUrl);
 
       params.forEach((param) => {
         if (param.enabled && param.key.trim()) {
-          requestUrl.searchParams.append(param.key.trim(), param.value);
+          requestUrl.searchParams.append(
+            resolveEnvironmentVariables(param.key.trim()),
+            resolveEnvironmentVariables(param.value)
+          );
         }
       });
 
@@ -140,7 +185,7 @@ const handleSend = async () => {
 
       headers.forEach((header) => {
         if (header.enabled && header.key.trim()) {
-          requestHeaders[header.key.trim()] = header.value;
+          requestHeaders[resolveEnvironmentVariables(header.key.trim())] = resolveEnvironmentVariables(header.value);
         }
       });
 
@@ -157,7 +202,7 @@ const handleSend = async () => {
 
       const requestBody =
         method !== "GET" && method !== "DELETE" && body.trim()
-          ? body
+          ? resolveEnvironmentVariables(body)
           : undefined;
 
       const result = await api.post("/test", {
@@ -167,7 +212,7 @@ const handleSend = async () => {
         body: requestBody,
       });
 
-      const elapsed = Math.round(performance.now() - startedAt);
+      const elapsed = Math.round(performance.now() -startedAt);
       const responseText =
         typeof result.data.body === "string"
           ? result.data.body
@@ -212,7 +257,7 @@ setRequestHistory((prev) => {
       setRequestError(
         error.response?.data?.message ||
           error.message ||
-          "The request failed. Check the URL and try again."
+          "The request failed. Check the URL and tryagain."
       );
     } finally {
       setLoading(false);
@@ -249,6 +294,147 @@ setRequestHistory((prev) => {
 
         </header>
 
+        <section
+          className="environment-card"
+          aria-label="Active environment"
+          style={{
+            marginBottom: 24,
+            overflow: "hidden",
+            border: "1px solid #e5e7f2",
+            borderRadius: 16,
+            background: "#ffffff",
+            boxShadow: "0 8px 24px rgba(31, 41, 76, 0.045)",
+          }}
+        >
+          <div
+            className="environment-card-title"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 18,
+              flexWrap: "wrap",
+              padding: "20px 24px",
+              borderBottom: "1px solid #edf0f7",
+            }}
+          >
+            <div
+              className="environment-title-text"
+              style={{ display: "flex", alignItems: "center", gap: 13, minWidth: 0 }}
+            >
+              <span
+                style={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 42,
+                  height: 42,
+                  flexShrink: 0,
+                  borderRadius: 12,
+                  color: "#6554e8",
+                  background: "#f1efff",
+                }}
+              >
+                <Settings2 size={20} />
+              </span>
+              <div style={{ display: "grid", gap: 4 }}>
+                <strong style={{ color: "#252b40", fontSize: 15, fontWeight: 750 }}>
+                  Environment
+                </strong>
+                <span style={{ color: "#858da5", fontSize: 13 }}>
+                  Choose which variables to use for this request
+                </span>
+              </div>
+            </div>
+            <button
+              className="manage-environments-button"
+              onClick={() => { window.location.href = "/environments"; }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: 42,
+                padding: "0 16px",
+                border: "1px solid #ded9ff",
+                borderRadius: 10,
+                background: "#f7f5ff",
+                color: "#6554e8",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Manage Environments
+            </button>
+          </div>
+          <div
+            className="environment-selector"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              flexWrap: "wrap",
+              padding: "18px 24px",
+              background: "#fbfbfe",
+            }}
+          >
+            <label
+              htmlFor="active-environment"
+              style={{ color: "#535b73", fontSize: 13, fontWeight: 700 }}
+            >
+              Active environment
+            </label>
+            <select
+              id="active-environment"
+              value={activeEnvironment?.id || ""}
+              onChange={(event) => {
+                setActiveEnvironmentId(event.target.value);
+                localStorage.setItem("apiVaultActiveEnvironment", event.target.value);
+              }}
+              style={{
+                minWidth: 210,
+                height: 42,
+                padding: "0 38px 0 13px",
+                border: "1px solid #dfe3ef",
+                borderRadius: 10,
+                background: "#ffffff",
+                color: "#292e43",
+                fontSize: 14,
+                fontWeight: 650,
+                outline: "none",
+                cursor: "pointer",
+              }}
+            >
+              {environments.map((environment) => (
+                <option key={environment.id} value={environment.id}>{environment.name}</option>
+              ))}
+            </select>
+            <span
+              className="environment-variable-count"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                minHeight: 32,
+                padding: "0 12px",
+                border: "1px solid #e4e0ff",
+                borderRadius: 999,
+                background: "#f1efff",
+                color: "#6554e8",
+                fontSize: 12,
+                fontWeight: 750,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#6554e8" }} />
+              {activeEnvironment?.variables?.filter((item) => item.enabled && item.key.trim()).length || 0} active variables
+            </span>
+            <span style={{ marginLeft: "auto", color: "#8b92a8", fontSize: 12 }}>
+              Use <code style={{ color: "#6554e8", background: "#f1efff", borderRadius: 5, padding: "3px 6px" }}>{"{{BASE_URL}}"}</code> in your request URL
+            </span>
+          </div>
+        </section>
+
         <section className="request-card">
 
           <div className="request-card-heading">
@@ -260,6 +446,22 @@ setRequestHistory((prev) => {
     placeholder="Request name"
     value={requestName}
     onChange={(e) => setRequestName(e.target.value)}
+    aria-label="Request name"
+    style={{
+      width: "min(260px, 100%)",
+      minWidth: 0,
+      height: 40,
+      padding: "0 12px",
+      border: "1px solid #e0e4f0",
+      borderRadius: 9,
+      background: "#fbfbfe",
+      color: "#252b40",
+      fontFamily: "inherit",
+      fontSize: 14,
+      fontWeight: 600,
+      outline: "none",
+      boxSizing: "border-box",
+    }}
   />
 </div>
 
@@ -621,7 +823,7 @@ setRequestHistory((prev) => {
   </div>
 )))}
 </section>
-        <section className="response-card">
+        <section className="response-card" ref={responseRef} style={{ scrollMarginTop: "24px" }}>
 
           <div className="response-heading">
 
@@ -757,7 +959,7 @@ setRequestHistory((prev) => {
 
         <footer className="workspace-footer">
 
-          API Vault · API Testing Workspace
+          API Vault Â· API Testing Workspace
 
         </footer>
 
@@ -902,3 +1104,4 @@ function KeyValueEditor({
 }
 
 export default Workspace;
+// PS C:\coding\api-vault>
