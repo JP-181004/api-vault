@@ -7,6 +7,7 @@ import {
   PlusCircle,
   ShieldCheck,
   FlaskConical,
+  Settings2,
 } from "lucide-react";
 import "./Navbar.css";
 
@@ -64,6 +65,16 @@ function Navbar() {
         >
           <FlaskConical size={20} />
           API Testing
+        </NavLink>
+
+        <NavLink
+          to="/environments"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? "active" : ""}`
+          }
+        >
+          <Settings2 size={20} />
+          Environments
         </NavLink>
 
         <a href="/apis#add-api" className="sidebar-link">

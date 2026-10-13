@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Collections from "./pages/Collections";
 import Apis from "./pages/Apis";
 import Workspace from "./pages/Workspace";
+import Environments from "./pages/Environments";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/collections" element={<Collections />} />
         <Route path="/apis" element={<Apis />} />
         <Route path="/workspace" element={<Workspace />} />
+        <Route path="/environments" element={<Environments />} />
       </Routes>
     </BrowserRouter>
   );
