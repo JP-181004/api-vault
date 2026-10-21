@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -7,6 +8,9 @@ import Collections from "./pages/Collections";
 import Apis from "./pages/Apis";
 import Workspace from "./pages/Workspace";
 import Environments from "./pages/Environments";
+import MockServers from "./pages/MockServers";
+import Vault from "./pages/Vault";
+import ApiTroubleshooter from "./pages/ApiTroubleshooter";
 
 function App() {
   return (
@@ -20,6 +24,12 @@ function App() {
         <Route path="/apis" element={<Apis />} />
         <Route path="/workspace" element={<Workspace />} />
         <Route path="/environments" element={<Environments />} />
+        <Route path="/mock-servers" element={<MockServers />} />
+        <Route path="/vault" element={<Vault />} />
+        <Route
+          path="/troubleshooter"
+          element={<ApiTroubleshooter />}
+        />
       </Routes>
     </BrowserRouter>
   );

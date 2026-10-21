@@ -1,13 +1,17 @@
+
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Boxes,
   Code2,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   PlusCircle,
   ShieldCheck,
   FlaskConical,
   Settings2,
+  Server,
+  Bug,
 } from "lucide-react";
 import "./Navbar.css";
 
@@ -19,6 +23,9 @@ function Navbar() {
     navigate("/login");
   };
 
+  const linkClass = ({ isActive }) =>
+    `sidebar-link ${isActive ? "active" : ""}`;
+
   return (
     <aside className="sidebar">
       <NavLink to="/dashboard" className="sidebar-logo">
@@ -27,54 +34,44 @@ function Navbar() {
       </NavLink>
 
       <nav className="sidebar-navigation">
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "active" : ""}`
-          }
-        >
+        <NavLink to="/dashboard" className={linkClass}>
           <LayoutDashboard size={20} />
           Dashboard
         </NavLink>
 
-        <NavLink
-          to="/collections"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "active" : ""}`
-          }
-        >
+        <NavLink to="/collections" className={linkClass}>
           <Boxes size={20} />
           Collections
         </NavLink>
 
-        <NavLink
-          to="/apis"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "active" : ""}`
-          }
-        >
+        <NavLink to="/apis" className={linkClass}>
           <Code2 size={20} />
           APIs
         </NavLink>
 
-        <NavLink
-          to="/workspace"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "active" : ""}`
-          }
-        >
+        <NavLink to="/workspace" className={linkClass}>
           <FlaskConical size={20} />
           API Testing
         </NavLink>
 
-        <NavLink
-          to="/environments"
-          className={({ isActive }) =>
-            `sidebar-link ${isActive ? "active" : ""}`
-          }
-        >
+        <NavLink to="/troubleshooter" className={linkClass}>
+          <Bug size={20} />
+          API Troubleshooter
+        </NavLink>
+
+        <NavLink to="/environments" className={linkClass}>
           <Settings2 size={20} />
           Environments
+        </NavLink>
+
+        <NavLink to="/mock-servers" className={linkClass}>
+          <Server size={20} />
+          Mock Servers
+        </NavLink>
+
+        <NavLink to="/vault" className={linkClass}>
+          <KeyRound size={20} />
+          Secrets Vault
         </NavLink>
 
         <a href="/apis#add-api" className="sidebar-link">

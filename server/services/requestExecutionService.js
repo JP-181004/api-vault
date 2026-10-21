@@ -1,3 +1,4 @@
+
 const dns = require("node:dns").promises;
 const net = require("node:net");
 const http = require("node:http");
@@ -24,12 +25,8 @@ function isPublicIP(address) {
   try {
     const parsed = ipaddr.parse(address);
 
-    // Only globally routable unicast addresses are allowed.
-    // This rejects loopback, private, link-local, multicast,
-    // reserved, and other special-purpose address ranges.
-    if (parsed.kind() === "ipv6") {
-      // IPv4-mapped IPv6 addresses are rejected to avoid ambiguity.
-      if (parsed.isIPv4MappedAddress()) return false;
+    if (parsed.kind() === "ipv6" && parsed.isIPv4MappedAddress()) {
+      return false;
     }
 
     return parsed.range() === "unicast";
@@ -55,7 +52,9 @@ async function resolvePublicTarget(target) {
 
   if (net.isIP(hostname)) {
     if (!isPublicIP(hostname)) {
-      throw new Error("Requests to private or reserved IP addresses are blocked.");
+      throw new Error(
+        "Requests to private or reserved IP addresses are blocked."
+      );
     }
 
     return { address: hostname, family: net.isIP(hostname) };
@@ -81,7 +80,6 @@ async function resolvePublicTarget(target) {
     );
   }
 
-  // Pin the connection to an IP address already validated above.
   return addresses[0];
 }
 
@@ -111,16 +109,27 @@ async function validateTarget(rawUrl) {
   return { target, resolvedAddress };
 }
 
-function executeHttpRequest(target, resolvedAddress, method, headers, body) {
+function executeHttpRequest(
+  target,
+  resolvedAddress,
+  method,
+  headers,
+  body
+) {
   return new Promise((resolve, reject) => {
     const transport = target.protocol === "https:" ? https : http;
+    const startTime = Date.now();
+
     let settled = false;
     let timer;
 
     const finish = (callback, value) => {
       if (settled) return;
+
       settled = true;
+
       if (timer) clearTimeout(timer);
+
       callback(value);
     };
 
@@ -129,67 +138,83 @@ function executeHttpRequest(target, resolvedAddress, method, headers, body) {
       headers,
       maxHeaderSize: 16 * 1024,
 
-      // Use only the IP address that passed validation.
-     lookup: (_hostname, options, callback) => {
-  const address = resolvedAddress.address;
-  const family = net.isIP(address);
+      // Pin the request to the IP address validated above.
+      lookup: (_hostname, options, callback) => {
+        const address = resolvedAddress.address;
+        const family = net.isIP(address);
 
-  if (!family) {
-    return callback(new Error("Resolved IP address is invalid."));
-  }
+        if (!family) {
+          return callback(new Error("Resolved IP address is invalid."));
+        }
 
-  if (options?.all) {
-    return callback(null, [{ address, family }]);
-  }
+        if (options?.all) {
+          return callback(null, [{ address, family }]);
+        }
 
-  return callback(null, address, family);
-},};
+        return callback(null, address, family);
+      },
+    };
 
-    // Preserve TLS certificate validation and SNI for HTTPS hostnames.
+    // Preserve TLS hostname verification for HTTPS requests.
     if (target.protocol === "https:" && !net.isIP(target.hostname)) {
       requestOptions.servername = target.hostname;
     }
 
-    const request = transport.request(target, requestOptions, (response) => {
-      const chunks = [];
-      let total = 0;
+    const request = transport.request(
+      target,
+      requestOptions,
+      (response) => {
+        const chunks = [];
+        let total = 0;
 
-      response.on("data", (chunk) => {
-        total += chunk.length;
+        response.on("data", (chunk) => {
+          total += chunk.length;
 
-        if (total > MAX_RESPONSE_SIZE) {
-          request.destroy(new Error("Response exceeded the 2 MB limit."));
-          return;
-        }
+          if (total > MAX_RESPONSE_SIZE) {
+            request.destroy(
+              new Error("Response exceeded the 2 MB limit.")
+            );
+            return;
+          }
 
-        chunks.push(chunk);
-      });
-
-      response.on("end", () => {
-        finish(resolve, {
-          status: response.statusCode || 0,
-          statusText: response.statusMessage || "",
-          headers: response.headers,
-          body: Buffer.concat(chunks).toString("utf8"),
-          size: total,
+          chunks.push(chunk);
         });
-      });
 
-      response.on("error", (error) => finish(reject, error));
-    });
+        response.on("end", () => {
+          finish(resolve, {
+            status: response.statusCode || 0,
+            statusText: response.statusMessage || "",
+            headers: response.headers,
+            body: Buffer.concat(chunks).toString("utf8"),
+            size: total,
+            durationMs: Date.now() - startTime,
+          });
+        });
+
+        response.on("error", (error) => {
+          finish(reject, error);
+        });
+      }
+    );
 
     timer = setTimeout(() => {
-      request.destroy(new Error("Request timed out after 15 seconds."));
+      request.destroy(
+        new Error("Request timed out after 15 seconds.")
+      );
     }, TIMEOUT_MS);
 
-    request.on("error", (error) => finish(reject, error));
+    request.on("error", (error) => {
+      finish(reject, error);
+    });
 
     if (body) request.write(body);
+
     request.end();
   });
 }
 
 async function executeRequest(input = {}) {
+  const startTime = Date.now();
   const method = String(input.method || "GET").toUpperCase();
 
   if (!ALLOWED_METHODS.has(method)) {
@@ -255,13 +280,19 @@ async function executeRequest(input = {}) {
     body = input.body;
   }
 
-  return executeHttpRequest(
+  const result = await executeHttpRequest(
     target,
     resolvedAddress,
     method,
     headers,
     body
   );
+
+  // Include validation and DNS time in the total duration.
+  return {
+    ...result,
+    durationMs: Date.now() - startTime,
+  };
 }
 
 module.exports = { executeRequest };
