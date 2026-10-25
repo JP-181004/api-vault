@@ -12,11 +12,19 @@ import {
   CalendarClock,
   LockKeyhole,
   RefreshCw,
+  UnlockKeyhole,
+  ArrowLeftRight,
+  Shield,
+  CheckCircle2,
+  History,
+  FileKey,
+  X,
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import "./Vault.css";
 
-const API_URL = "http://localhost:5000/api/secrets";
+const API_ROOT = "http://localhost:5000/api";
+const API_URL = `${API_ROOT}/secrets`;
 
 const emptyForm = {
   serviceName: "",
@@ -38,6 +46,16 @@ function Vault() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
+  // Standalone encryption workspace state
+  const [toolMode, setToolMode] = useState("encrypt");
+  const [toolInput, setToolInput] = useState("");
+  const [toolOutput, setToolOutput] = useState("");
+  const [toolEncoding, setToolEncoding] = useState("base64");
+  const [toolLoading, setToolLoading] = useState(false);
+  const [toolError, setToolError] = useState("");
+  const [toolNotice, setToolNotice] = useState("");
+  const [showWorkspace, setShowWorkspace] = useState(true);
+
   const getToken = () => localStorage.getItem("token");
 
   const apiRequest = async (path = "", options = {}) => {
@@ -51,7 +69,9 @@ function Vault() {
       ...options,
       headers: {
         Authorization: `Bearer ${token}`,
-        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(options.body
+          ? { "Content-Type": "application/json" }
+          : {}),
         ...options.headers,
       },
     });
@@ -60,9 +80,49 @@ function Vault() {
 
     if (!response.ok) {
       if (response.status === 401) {
-        throw new Error("Your login session is invalid or expired. Please log in again.");
+        throw new Error(
+          "Your login session is invalid or expired. Please log in again."
+        );
       }
+
       throw new Error(data.message || "The request failed.");
+    }
+
+    return data;
+  };
+
+  // Uses authenticated backend endpoints.
+  // These workspace endpoints must be added to the backend before use.
+  const toolRequest = async (action, payload) => {
+    const token = getToken();
+
+    if (!token) {
+      throw new Error("Please log in again. Your login token is missing.");
+    }
+
+    const response = await fetch(
+      `${API_ROOT}/crypto/${action}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Your session expired. Please log in again.");
+      }
+
+      throw new Error(
+        data.message ||
+          `The ${action} endpoint is not available yet.`
+      );
     }
 
     return data;
@@ -93,13 +153,18 @@ function Vault() {
   );
 
   const activeCount = secrets.filter(
-    (secret) => !secret.expiresAt || new Date(secret.expiresAt) >= new Date()
+    (secret) =>
+      !secret.expiresAt ||
+      new Date(secret.expiresAt) >= new Date()
   ).length;
 
   const expiringCount = secrets.filter((secret) => {
     if (!secret.expiresAt) return false;
+
     const days =
-      (new Date(secret.expiresAt) - new Date()) / (1000 * 60 * 60 * 24);
+      (new Date(secret.expiresAt) - new Date()) /
+      (1000 * 60 * 60 * 24);
+
     return days >= 0 && days <= 30;
   }).length;
 
@@ -108,7 +173,11 @@ function Vault() {
     setError("");
     setNotice("");
 
-    if (!form.serviceName.trim() || !form.project.trim() || !form.apiKey) {
+    if (
+      !form.serviceName.trim() ||
+      !form.project.trim() ||
+      !form.apiKey
+    ) {
       setError("Service, project, and API key are required.");
       return;
     }
@@ -128,7 +197,10 @@ function Vault() {
 
       setForm(emptyForm);
       setShowForm(false);
-      setNotice(data.message || "Secret encrypted and saved successfully.");
+      setNotice(
+        data.message || "Secret encrypted and saved successfully."
+      );
+
       await loadSecrets();
     } catch (err) {
       setError(err.message || "Could not save the secret.");
@@ -179,6 +251,7 @@ function Vault() {
         const data = await apiRequest(`/${secret._id}/reveal`, {
           method: "POST",
         });
+
         value = data.apiKey;
       } catch (err) {
         setError(err.message || "Could not retrieve this secret.");
@@ -198,7 +271,11 @@ function Vault() {
   }
 
   async function deleteSecret(secret) {
-    if (!window.confirm(`Delete the secret for "${secret.serviceName}"?`)) {
+    if (
+      !window.confirm(
+        `Delete the secret for "${secret.serviceName}"?`
+      )
+    ) {
       return;
     }
 
@@ -234,6 +311,90 @@ function Vault() {
     setForm((current) => ({ ...current, [name]: value }));
   }
 
+  function changeToolMode(mode) {
+    setToolMode(mode);
+    setToolInput("");
+    setToolOutput("");
+    setToolError("");
+    setToolNotice("");
+  }
+
+  async function runCryptoTool(event) {
+    event.preventDefault();
+    setToolError("");
+    setToolNotice("");
+    setToolOutput("");
+
+    if (!toolInput.trim()) {
+      setToolError(
+        toolMode === "encrypt"
+          ? "Enter the text you want to encrypt."
+          : "Paste the encrypted payload you want to decrypt."
+      );
+      return;
+    }
+
+    setToolLoading(true);
+
+    try {
+      const payload =
+        toolMode === "encrypt"
+          ? {
+              plaintext: toolInput,
+              encoding: toolEncoding,
+            }
+          : {
+              payload: toolInput,
+              encoding: toolEncoding,
+            };
+
+      const data = await toolRequest(toolMode, payload);
+
+      const result =
+        data.payload ??
+        data.ciphertext ??
+        data.plaintext ??
+        data.result;
+
+      if (typeof result !== "string") {
+        throw new Error(
+          "The server returned an unexpected response."
+        );
+      }
+
+      setToolOutput(result);
+      setToolNotice(
+        toolMode === "encrypt"
+          ? "Text encrypted successfully."
+          : "Text decrypted successfully."
+      );
+    } catch (err) {
+      setToolError(
+        err.message || "The encryption operation failed."
+      );
+    } finally {
+      setToolLoading(false);
+    }
+  }
+
+  async function copyToolOutput() {
+    if (!toolOutput) return;
+
+    try {
+      await navigator.clipboard.writeText(toolOutput);
+      setToolNotice("Output copied to clipboard.");
+    } catch {
+      setToolError("Could not copy output. Check clipboard permissions.");
+    }
+  }
+
+  function clearTool() {
+    setToolInput("");
+    setToolOutput("");
+    setToolError("");
+    setToolNotice("");
+  }
+
   return (
     <div className="workspace-shell">
       <Navbar />
@@ -241,9 +402,13 @@ function Vault() {
       <main className="workspace-main vault-page">
         <header className="workspace-topbar vault-topbar">
           <div>
-            <span className="workspace-eyebrow">API VAULT / SECURITY</span>
+            <span className="workspace-eyebrow">
+              API VAULT / SECURITY
+            </span>
             <h1>Secrets Vault</h1>
-            <p>Securely organize and manage your API credentials.</p>
+            <p>
+              Securely organize and manage your API credentials.
+            </p>
           </div>
 
           <button
@@ -273,19 +438,25 @@ function Vault() {
 
         <section className="vault-summary">
           <article className="vault-stat-card">
-            <div className="vault-stat-icon"><KeyRound size={21} /></div>
+            <div className="vault-stat-icon">
+              <KeyRound size={21} />
+            </div>
             <span>Total Secrets</span>
             <strong>{secrets.length}</strong>
           </article>
 
           <article className="vault-stat-card">
-            <div className="vault-stat-icon"><ShieldCheck size={21} /></div>
+            <div className="vault-stat-icon">
+              <ShieldCheck size={21} />
+            </div>
             <span>Active Credentials</span>
             <strong>{activeCount}</strong>
           </article>
 
           <article className="vault-stat-card">
-            <div className="vault-stat-icon"><CalendarClock size={21} /></div>
+            <div className="vault-stat-icon">
+              <CalendarClock size={21} />
+            </div>
             <span>Expiring Soon</span>
             <strong>{expiringCount}</strong>
           </article>
@@ -391,11 +562,212 @@ function Vault() {
           </section>
         )}
 
+        {/* Standalone encryption and decryption workspace */}
+        <section className="response-card vault-crypto-card">
+          <div className="vault-table-heading">
+            <div>
+              <h2>
+                <Shield size={19} className="vault-inline-icon" />
+                Encryption Workspace
+              </h2>
+              <p>
+                Encrypt or decrypt text without modifying your saved
+                credentials.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="add-row-button"
+              onClick={() => setShowWorkspace((current) => !current)}
+            >
+              {showWorkspace ? "Collapse" : "Open workspace"}
+            </button>
+          </div>
+
+          {showWorkspace && (
+            <div className="vault-crypto-content">
+              <div className="vault-crypto-tabs">
+                <button
+                  type="button"
+                  className={
+                    toolMode === "encrypt"
+                      ? "vault-crypto-tab active"
+                      : "vault-crypto-tab"
+                  }
+                  onClick={() => changeToolMode("encrypt")}
+                >
+                  <LockKeyhole size={16} />
+                  Encrypt text
+                </button>
+
+                <button
+                  type="button"
+                  className={
+                    toolMode === "decrypt"
+                      ? "vault-crypto-tab active"
+                      : "vault-crypto-tab"
+                  }
+                  onClick={() => changeToolMode("decrypt")}
+                >
+                  <UnlockKeyhole size={16} />
+                  Decrypt text
+                </button>
+              </div>
+
+              <form onSubmit={runCryptoTool}>
+                <label className="vault-crypto-label">
+                  {toolMode === "encrypt"
+                    ? "Plaintext input"
+                    : "Encrypted payload"}
+                  <textarea
+                    className="vault-crypto-textarea"
+                    value={toolInput}
+                    onChange={(event) => {
+                      setToolInput(event.target.value);
+                      setToolError("");
+                    }}
+                    placeholder={
+                      toolMode === "encrypt"
+                        ? "Enter the text you want to encrypt..."
+                        : "Paste the encrypted payload returned by this workspace..."
+                    }
+                    rows={5}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </label>
+
+                <div className="vault-crypto-options">
+                  <label className="vault-crypto-label">
+                    Ciphertext encoding
+                    <select
+                      value={toolEncoding}
+                      onChange={(event) =>
+                        setToolEncoding(event.target.value)
+                      }
+                    >
+                      <option value="base64">Base64</option>
+                      <option value="hex">Hexadecimal</option>
+                    </select>
+                  </label>
+
+                  <div className="vault-crypto-note">
+                    <ShieldCheck size={18} />
+                    <span>
+                      AES-256-GCM · Authenticated backend
+                    </span>
+                  </div>
+                </div>
+
+                {toolError && (
+                  <div
+                    className="vault-message vault-error"
+                    role="alert"
+                  >
+                    {toolError}
+                  </div>
+                )}
+
+                {toolNotice && (
+                  <div
+                    className="vault-message vault-success"
+                    role="status"
+                  >
+                    {toolNotice}
+                  </div>
+                )}
+
+                <div className="vault-form-actions vault-crypto-actions">
+                  <button
+                    className="send-button"
+                    type="submit"
+                    disabled={toolLoading}
+                  >
+                    {toolMode === "encrypt" ? (
+                      <LockKeyhole size={16} />
+                    ) : (
+                      <UnlockKeyhole size={16} />
+                    )}
+                    {toolLoading
+                      ? "Processing..."
+                      : toolMode === "encrypt"
+                        ? "Encrypt text"
+                        : "Decrypt text"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="add-row-button"
+                    onClick={clearTool}
+                  >
+                    <X size={15} />
+                    Clear
+                  </button>
+                </div>
+              </form>
+
+              <div className="vault-crypto-output">
+                <div className="vault-crypto-output-heading">
+                  <label>
+                    {toolMode === "encrypt"
+                      ? "Encrypted output"
+                      : "Decrypted plaintext"}
+                  </label>
+
+                  <button
+                    type="button"
+                    className="vault-icon-button"
+                    title="Copy output"
+                    aria-label="Copy output"
+                    disabled={!toolOutput}
+                    onClick={copyToolOutput}
+                  >
+                    <Copy size={16} />
+                  </button>
+                </div>
+
+                <textarea
+                  className="vault-crypto-textarea vault-output-area"
+                  value={toolOutput}
+                  readOnly
+                  placeholder="The result will appear here after the backend operation succeeds."
+                  rows={5}
+                  spellCheck={false}
+                />
+              </div>
+
+              <div className="vault-security-info">
+                <div className="vault-security-info-icon">
+                  <CheckCircle2 size={20} />
+                </div>
+                <div>
+                  <strong>How your encryption works</strong>
+                  <p>
+                    AES-256-GCM provides confidentiality and integrity
+                    verification. The server holds the encryption key.
+                    Base64 and hexadecimal are encodings, not encryption.
+                    Decryption must verify the authentication tag.
+                  </p>
+                </div>
+              </div>
+
+              <p className="editor-hint">
+                This workspace is separate from stored credentials. The
+                operation requires authenticated backend endpoints; text
+                is not encrypted locally by this interface.
+              </p>
+            </div>
+          )}
+        </section>
+
         <section className="response-card vault-table-card">
           <div className="vault-table-heading">
             <div>
               <h2>Your credentials</h2>
-              <p>Credentials stay masked until you explicitly reveal them.</p>
+              <p>
+                Credentials stay masked until you explicitly reveal them.
+              </p>
             </div>
 
             <label className="vault-search">
@@ -416,13 +788,16 @@ function Vault() {
             </div>
           ) : filteredSecrets.length === 0 ? (
             <div className="vault-empty-state">
-              <div className="vault-empty-icon"><KeyRound size={29} /></div>
+              <div className="vault-empty-icon">
+                <KeyRound size={29} />
+              </div>
               <h3>{search ? "No matching secrets" : "No secrets yet"}</h3>
               <p>
                 {search
                   ? "Try another search term."
                   : "Add a credential to start using your encrypted vault."}
               </p>
+
               {!search && (
                 <button
                   className="send-button"
@@ -446,6 +821,7 @@ function Vault() {
                     <th>Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {filteredSecrets.map((secret) => (
                     <tr key={secret._id}>
@@ -458,10 +834,17 @@ function Vault() {
                             ? revealed[secret._id]
                             : "••••••••••••"}
                         </span>
+
                         <button
                           className="vault-icon-button"
-                          title={revealed[secret._id] ? "Hide" : "Reveal"}
-                          aria-label={revealed[secret._id] ? "Hide secret" : "Reveal secret"}
+                          title={
+                            revealed[secret._id] ? "Hide" : "Reveal"
+                          }
+                          aria-label={
+                            revealed[secret._id]
+                              ? "Hide secret"
+                              : "Reveal secret"
+                          }
                           disabled={busyId === secret._id}
                           onClick={() => toggleReveal(secret)}
                         >
@@ -472,11 +855,15 @@ function Vault() {
                           )}
                         </button>
                       </td>
+
                       <td>
                         {secret.expiresAt
-                          ? new Date(secret.expiresAt).toLocaleDateString()
+                          ? new Date(
+                              secret.expiresAt
+                            ).toLocaleDateString()
                           : "No expiry"}
                       </td>
+
                       <td>
                         <button
                           className="vault-icon-button"
@@ -487,6 +874,7 @@ function Vault() {
                         >
                           <Copy size={16} />
                         </button>
+
                         <button
                           className="vault-icon-button"
                           title="Delete"

@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,6 +8,8 @@ import {
   Menu,
   Search,
   Star,
+  Moon,
+  Sun,
 } from "lucide-react";
 import {
   Cell,
@@ -17,6 +20,7 @@ import {
   Tooltip,
 } from "recharts";
 import Navbar from "../components/Navbar";
+import { useTheme } from "../ThemeContext";
 import api from "../api/axios";
 import "./Dashboard.css";
 
@@ -33,6 +37,8 @@ function Dashboard() {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,7 +82,6 @@ function Dashboard() {
     return (
       <>
         <Navbar />
-
         <main className="dashboard-main">
           <div className="dashboard-message error-message">
             {error}
@@ -90,7 +95,6 @@ function Dashboard() {
     return (
       <>
         <Navbar />
-
         <main className="dashboard-main">
           <div className="dashboard-message">
             Loading dashboard...
@@ -110,7 +114,6 @@ function Dashboard() {
 
           <div className="dashboard-search">
             <Search size={18} />
-
             <input
               type="text"
               placeholder="Search recent APIs..."
@@ -119,7 +122,27 @@ function Dashboard() {
             />
           </div>
 
-          <div className="user-badge">JP</div>
+          <div className="topbar-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${
+                theme === "dark" ? "light" : "dark"
+              } mode`}
+              title={`Switch to ${
+                theme === "dark" ? "light" : "dark"
+              } mode`}
+            >
+              {theme === "dark" ? (
+                <Sun size={19} />
+              ) : (
+                <Moon size={19} />
+              )}
+            </button>
+
+            <div className="user-badge">JP</div>
+          </div>
         </header>
 
         <section className="dashboard-content">
@@ -164,7 +187,6 @@ function Dashboard() {
             <section className="dashboard-card recent-card">
               <div className="card-heading">
                 <h2>Recent APIs</h2>
-
                 <button onClick={() => navigate("/apis")}>
                   View all
                 </button>
@@ -233,7 +255,6 @@ function Dashboard() {
                           />
                         ))}
                       </Pie>
-
                       <Tooltip />
                       <Legend />
                     </PieChart>
@@ -251,7 +272,6 @@ function Dashboard() {
           <section className="dashboard-card overview-card">
             <div className="card-heading">
               <h2>API Overview</h2>
-
               <button onClick={() => navigate("/apis")}>
                 Manage APIs
               </button>
@@ -288,7 +308,6 @@ function StatCard({ icon, color, value, label }) {
   return (
     <article className="dashboard-stat-card">
       <div className={`stat-icon ${color}`}>{icon}</div>
-
       <div>
         <strong>{value}</strong>
         <span>{label}</span>

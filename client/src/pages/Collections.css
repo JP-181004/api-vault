@@ -1,12 +1,14 @@
+
 .collections-shell {
   min-height: 100vh;
-  color: #111827;
-  background: #f6f8fc;
+  color: var(--text);
+  background: var(--bg);
 }
 
 .collections-main {
   min-height: 100vh;
   margin-left: 240px;
+  background: var(--bg);
 }
 
 .collections-content {
@@ -24,13 +26,13 @@
 
 .collections-header h1 {
   margin: 0 0 7px;
-  color: #111827;
+  color: var(--text);
   font-size: 29px;
 }
 
 .collections-header p {
   margin: 0;
-  color: #657087;
+  color: var(--text-muted);
 }
 
 .collection-count {
@@ -38,19 +40,20 @@
   align-items: center;
   gap: 9px;
   padding: 10px 14px;
-  border: 1px solid #dce2ec;
+  border: 1px solid var(--border);
   border-radius: 9px;
-  color: #4f5fd7;
-  background: white;
+  color: var(--accent);
+  background: var(--surface);
   font-weight: 600;
 }
 
 .collection-form-card,
 .collections-list-card {
-  border: 1px solid #e0e5ee;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: white;
-  box-shadow: 0 4px 16px rgba(22, 34, 57, 0.05);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
 }
 
 .collection-form-card {
@@ -68,21 +71,22 @@
   display: grid;
   width: 43px;
   height: 43px;
+  flex-shrink: 0;
   place-items: center;
   border-radius: 10px;
-  color: #4f55e7;
-  background: #ebeefe;
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .collection-form-heading h2 {
   margin: 0 0 4px;
-  color: #111827;
+  color: var(--text);
   font-size: 18px;
 }
 
 .collection-form-heading p {
   margin: 0;
-  color: #7b8497;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
@@ -95,21 +99,26 @@
   min-width: 0;
   flex: 1;
   padding: 13px 14px;
-  border: 1px solid #d7deea;
+  border: 1px solid var(--border);
   border-radius: 8px;
   outline: none;
-  color: #1f2937;
-  background: white;
+  color: var(--text);
+  background: var(--input-bg);
+}
+
+.collection-form input::placeholder {
+  color: var(--text-muted);
 }
 
 .collection-form input:focus {
-  border-color: #4f5fe7;
-  box-shadow: 0 0 0 3px rgba(79, 95, 231, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(112, 64, 217, 0.12);
 }
 
 .collection-form button {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 0 20px;
   border: 0;
@@ -128,10 +137,10 @@
 .collections-error {
   margin-top: 18px;
   padding: 14px 16px;
-  border: 1px solid #fecaca;
+  border: 1px solid var(--border);
   border-radius: 9px;
-  color: #b91c1c;
-  background: #fef2f2;
+  color: var(--error-text);
+  background: var(--error-bg);
 }
 
 .collections-list-card {
@@ -145,17 +154,17 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 22px;
-  border-bottom: 1px solid #e5e9f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .collections-list-heading h2 {
   margin: 0;
-  color: #111827;
+  color: var(--text);
   font-size: 18px;
 }
 
 .collections-list-heading span {
-  color: #727d91;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
@@ -170,17 +179,19 @@
   display: flex;
   align-items: center;
   gap: 13px;
+  min-width: 0;
   padding: 17px;
-  border: 1px solid #e1e6ef;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #fbfcfe;
-  transition: 0.2s ease;
+  background: var(--surface-raised);
+  transition: border-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .collection-item:hover {
-  border-color: #bfc9ee;
+  border-color: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 7px 18px rgba(38, 53, 91, 0.07);
+  box-shadow: var(--shadow);
 }
 
 .collection-item-icon {
@@ -190,8 +201,8 @@
   flex-shrink: 0;
   place-items: center;
   border-radius: 9px;
-  color: #594ae2;
-  background: #ecebff;
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .collection-item-information {
@@ -202,7 +213,7 @@
 .collection-item-information strong {
   display: block;
   overflow: hidden;
-  color: #182034;
+  color: var(--text);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -210,7 +221,7 @@
 .collection-item-information span {
   display: block;
   margin-top: 5px;
-  color: #818b9e;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -218,11 +229,12 @@
   display: grid;
   width: 38px;
   height: 38px;
+  flex-shrink: 0;
   place-items: center;
   border: 0;
   border-radius: 8px;
   color: #dc3545;
-  background: #fff0f1;
+  background: rgba(220, 53, 69, 0.09);
   cursor: pointer;
 }
 
@@ -237,17 +249,18 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  color: #8993a5;
+  color: var(--text-muted);
   text-align: center;
 }
 
 .collections-empty h3 {
   margin: 12px 0 5px;
-  color: #30394d;
+  color: var(--text);
 }
 
 .collections-empty p {
   margin: 0;
+  color: var(--text-muted);
 }
 
 @media (max-width: 900px) {
@@ -276,7 +289,6 @@
   }
 
   .collection-form button {
-    justify-content: center;
     min-height: 46px;
   }
 }

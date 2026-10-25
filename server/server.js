@@ -13,8 +13,9 @@ const authRoutes = require("./routes/authRoutes");
 const apiRoutes = require("./routes/apiRoutes");
 const testRoutes = require("./routes/testRoutes");
 const secretRoutes = require("./routes/secretRoutes");
+const cryptoRoutes = require("./routes/cryptoRoutes");
 const mockEndpointRoutes = require("./routes/mockEndpointRoutes");
-
+const auditLogRoutes = require("./routes/auditLogRoutes");
 // API Troubleshooter route
 const apiTroubleshooterRoutes = require("./routes/apiTroubleshooterRoutes");
 
@@ -41,6 +42,10 @@ app.use("/api/apis", apiRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/secrets", secretRoutes);
+
+// Authenticated encryption workspace routes
+app.use("/api/crypto", cryptoRoutes);
+app.use("/api/audit-logs", auditLogRoutes);
 
 // Authenticated Mock Server management routes
 app.use("/api/mock-endpoints", mockEndpointRoutes);

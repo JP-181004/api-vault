@@ -5,8 +5,8 @@
 .environments-page {
   min-height: 100vh;
   padding: 36px;
-  background: #f5f6fb;
-  color: #20243a;
+  background: var(--bg);
+  color: var(--text);
   box-sizing: border-box;
   overflow-x: hidden;
 }
@@ -34,18 +34,18 @@
   font-size: 34px;
   font-weight: 750;
   line-height: 1.2;
-  color: #20243a;
+  color: var(--text);
 }
 
 .environments-page .workspace-topbar p {
   margin: 0;
-  color: #7a819b;
+  color: var(--text-muted);
   font-size: 15px;
   line-height: 1.6;
 }
 
 .environments-page .workspace-eyebrow {
-  color: #7a819b;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 750;
   letter-spacing: 1.5px;
@@ -74,15 +74,15 @@
   padding: 0 20px;
   border: none;
   border-radius: 11px;
-  background: #6349e8;
-  color: #ffffff;
+  background: var(--accent);
+  color: var(--surface);
   font-size: 14px;
   font-weight: 650;
   white-space: nowrap;
 }
 
 .environments-page .send-button:hover {
-  background: #5037d2;
+  background: var(--accent-hover);
   transform: translateY(-1px);
 }
 
@@ -94,10 +94,10 @@
   width: 100%;
   min-width: 0;
   margin-bottom: 24px;
-  background: #ffffff;
-  border: 1px solid #e4e7f1;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  box-shadow: 0 4px 18px rgba(33, 40, 80, 0.035);
+  box-shadow: var(--shadow);
   overflow: hidden;
 }
 
@@ -106,21 +106,21 @@
   align-items: center;
   min-height: 68px;
   padding: 20px 26px;
-  border-bottom: 1px solid #edf0f6;
+  border-bottom: 1px solid var(--border);
 }
 
 .environments-page .request-title {
   display: flex;
   align-items: center;
   gap: 14px;
-  color: #20243a;
+  color: var(--text);
   font-size: 16px;
   font-weight: 700;
 }
 
 .environments-page .request-title svg {
   flex-shrink: 0;
-  color: #644cf0;
+  color: var(--accent);
 }
 
 /* =========================================
@@ -136,7 +136,7 @@
 }
 
 .environments-page .environment-selector label {
-  color: #454b63;
+  color: var(--text-muted);
   font-size: 14px;
   font-weight: 600;
 }
@@ -146,22 +146,22 @@
   max-width: 100%;
   min-height: 46px;
   padding: 0 14px;
-  border: 1px solid #dfe3ef;
+  border: 1px solid var(--border);
   border-radius: 11px;
-  background: #ffffff;
-  color: #252941;
+  background: var(--surface);
+  color: var(--text);
   font-family: inherit;
   font-size: 14px;
   outline: none;
 }
 
 .environments-page .environment-selector select:focus {
-  border-color: #7157ee;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(113, 87, 238, 0.12);
 }
 
 .environments-page .environment-variable-count {
-  color: #7c839b;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -175,7 +175,7 @@
   flex-wrap: wrap;
   gap: 14px;
   padding: 22px 26px;
-  border-bottom: 1px solid #edf0f6;
+  border-bottom: 1px solid var(--border);
 }
 
 .environments-page .environment-create-form input {
@@ -185,17 +185,17 @@
   min-width: 0;
   min-height: 46px;
   padding: 0 16px;
-  border: 1px solid #dfe3ef;
+  border: 1px solid var(--border);
   border-radius: 11px;
-  background: #ffffff;
-  color: #252941;
+  background: var(--surface);
+  color: var(--text);
   font-family: inherit;
   font-size: 14px;
   outline: none;
 }
 
 .environments-page .environment-create-form input:focus {
-  border-color: #7157ee;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(113, 87, 238, 0.1);
 }
 
@@ -207,9 +207,9 @@
   min-width: 0;
   margin: 20px 26px;
   padding: 22px;
-  border: 1px solid #e5e8f2;
+  border: 1px solid var(--border);
   border-radius: 15px;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .environments-page .environment-manager-heading {
@@ -227,10 +227,10 @@
   min-width: 0;
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid #dfe3ef;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #ffffff;
-  color: #252941;
+  background: var(--surface);
+  color: var(--text);
   font-family: inherit;
   font-size: 15px;
   font-weight: 600;
@@ -238,7 +238,7 @@
 }
 
 .environments-page .environment-manager-heading > input:focus {
-  border-color: #7157ee;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(113, 87, 238, 0.1);
 }
 
@@ -254,16 +254,16 @@
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1px solid #ececf5;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #ffffff;
-  color: #9299af;
+  background: var(--surface);
+  color: var(--text-muted);
 }
 
 .environments-page .remove-row-button:hover {
-  border-color: #ffcaca;
-  background: #fff1f1;
-  color: #dc4040;
+  border-color: var(--border);
+  background: var(--error-bg);
+  color: var(--error-text);
 }
 
 /* =========================================
@@ -280,7 +280,7 @@
 }
 
 .environments-page .environment-variables-heading strong {
-  color: #292d43;
+  color: var(--text);
   font-size: 15px;
   font-weight: 700;
 }
@@ -292,17 +292,17 @@
   gap: 7px;
   min-height: 38px;
   padding: 0 13px;
-  border: 1px solid #ded7ff;
+  border: 1px solid var(--border);
   border-radius: 9px;
-  background: #f8f6ff;
-  color: #644ce8;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-size: 13px;
   font-weight: 650;
 }
 
 .environments-page .add-row-button:hover {
-  border-color: #c7bcff;
-  background: #efebff;
+  border-color: var(--border);
+  background: var(--accent-soft);
 }
 
 /* =========================================
@@ -323,7 +323,7 @@
   width: 18px;
   height: 18px;
   margin: 0;
-  accent-color: #644ce8;
+  accent-color: var(--accent);
   cursor: pointer;
 }
 
@@ -333,23 +333,23 @@
   min-width: 0;
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid #dfe3ef;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #ffffff;
-  color: #252941;
+  background: var(--surface);
+  color: var(--text);
   font-family: inherit;
   font-size: 13px;
   outline: none;
 }
 
 .environments-page .environment-variable-row input:not([type="checkbox"]):focus {
-  border-color: #7157ee;
+  border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(113, 87, 238, 0.1);
 }
 
 .environments-page .editor-hint {
   margin: 14px 0 0;
-  color: #9299af;
+  color: var(--text-muted);
   font-size: 12px;
   line-height: 1.7;
 }
@@ -357,8 +357,8 @@
 .environments-page .editor-hint code {
   padding: 2px 5px;
   border-radius: 4px;
-  background: #f1efff;
-  color: #6046df;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-family: Consolas, monospace;
 }
 
@@ -368,7 +368,7 @@
 
 .environments-page .workspace-footer {
   padding: 12px 0;
-  color: #9299af;
+  color: var(--text-muted);
   font-size: 12px;
   text-align: center;
 }

@@ -598,3 +598,206 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== API Troubleshooter: Light/Dark Theme Support ===== */
+
+.troubleshooter-layout {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.troubleshooter-main {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.troubleshooter-breadcrumb {
+  color: var(--text-muted);
+}
+
+.troubleshooter-header h1,
+.troubleshooter-panel-heading h2,
+.troubleshooter-results-heading h2,
+.tr-stat-card strong,
+.tr-checks-heading h3,
+.tr-check-title h4,
+.tr-report-footer strong {
+  color: var(--text);
+}
+
+.troubleshooter-header p,
+.troubleshooter-panel-heading p,
+.troubleshooter-results-heading p,
+.troubleshooter-label,
+.troubleshooter-selected-api span,
+.tr-stat-card span,
+.tr-checks-heading p,
+.tr-checks-heading > span,
+.tr-check-message,
+.tr-report-footer > div:first-child {
+  color: var(--text-muted);
+}
+
+.troubleshooter-panel,
+.troubleshooter-results,
+.tr-stat-card,
+.tr-check-card {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+.troubleshooter-heading-icon,
+.tr-icon-purple {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.troubleshooter-select {
+  color: var(--text);
+  background: var(--input-bg);
+  border-color: var(--border);
+}
+
+.troubleshooter-select option {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.troubleshooter-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(98, 84, 232, 0.12);
+}
+
+.troubleshooter-selected-api {
+  color: var(--text);
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.troubleshooter-selected-api strong {
+  color: var(--text);
+}
+
+.troubleshooter-selected-api > svg {
+  color: var(--accent);
+}
+
+.troubleshooter-run-button,
+.troubleshooter-rerun-button {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.troubleshooter-run-button:hover:not(:disabled),
+.troubleshooter-rerun-button:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(1.1);
+}
+
+.troubleshooter-error {
+  color: var(--error-text);
+  background: var(--error-bg);
+  border-color: var(--border);
+}
+
+.troubleshooter-rerun-button {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--border);
+}
+
+.tr-overall-passed {
+  color: #42c98a;
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.tr-overall-failed {
+  color: #ff7777;
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.tr-overall-review {
+  color: #e8bd57;
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+
+.tr-icon-green {
+  color: #42c98a;
+  background: var(--surface-raised);
+}
+
+.tr-icon-red {
+  color: #ff7777;
+  background: var(--surface-raised);
+}
+
+.tr-icon-amber {
+  color: #e8bd57;
+  background: var(--surface-raised);
+}
+
+.tr-check-passed .tr-check-icon {
+  color: #42c98a;
+}
+
+.tr-check-failed .tr-check-icon {
+  color: #ff7777;
+}
+
+.tr-check-review .tr-check-icon {
+  color: #e8bd57;
+}
+
+.tr-status-passed {
+  color: #42c98a;
+  background: var(--surface-raised);
+}
+
+.tr-status-failed {
+  color: #ff7777;
+  background: var(--surface-raised);
+}
+
+.tr-status-review {
+  color: #e8bd57;
+  background: var(--surface-raised);
+}
+
+.tr-recommendation {
+  background: var(--surface-raised);
+  border-left-color: var(--accent);
+}
+
+.tr-recommendation strong {
+  color: var(--accent);
+}
+
+.tr-recommendation p {
+  color: var(--text-muted);
+}
+
+.tr-report-footer {
+  border-top-color: var(--border);
+}
+
+.tr-report-footer > div:first-child svg {
+  color: var(--accent);
+}
+
+.tr-report-note {
+  color: #42c98a;
+}
+
+/* Keep the Troubleshooter aligned with the 240px sidebar */
+@media (min-width: 769px) {
+  .troubleshooter-main {
+    margin-left: 240px;
+    width: calc(100% - 240px);
+  }
+}

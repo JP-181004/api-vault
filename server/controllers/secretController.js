@@ -1,6 +1,29 @@
 
+const AuditLog = require("../models/AuditLog");
 const mongoose = require("mongoose");
 const Secret = require("../models/Secret");
+
+async function writeAuditLog({
+  owner,
+  action,
+  secretId = null,
+  resourceType = "secret",
+  details = "",
+}) {
+  try {
+    await AuditLog.create({
+      owner,
+      action,
+      secretId,
+      resourceType,
+      details,
+    });
+  } catch (error) {
+    // Audit failures should be visible to developers, but never log secrets.
+    console.error("Audit log write failed:", error.message);
+  }
+}
+
 const {
   encryptSecret,
   decryptSecret,
@@ -56,7 +79,13 @@ const createSecret = async (req, res) => {
       expiresAt: expiresAt || null,
       owner: req.user._id,
     });
-
+    await writeAuditLog({
+  owner: req.user._id,
+  action: "SECRET_CREATED",
+  secretId: secret._id,
+  resourceType: "secret",
+  details: `Created a ${environment} credential`,
+});
     return res.status(201).json({
       message: "Secret encrypted and saved successfully.",
       secret: {
@@ -116,6 +145,13 @@ const revealSecret = async (req, res) => {
       iv: secret.iv,
       authTag: secret.authTag,
     });
+    await writeAuditLog({
+  owner: req.user._id,
+  action: "SECRET_REVEALED",
+  secretId: secret._id,
+  resourceType: "secret",
+  details: "Credential revealed",
+});
 
     return res.json({ apiKey });
   } catch (error) {
@@ -142,6 +178,13 @@ const deleteSecret = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: "Secret not found." });
     }
+    await writeAuditLog({
+  owner: req.user._id,
+  action: "SECRET_DELETED",
+  secretId: deleted._id,
+  resourceType: "secret",
+  details: "Credential deleted",
+});
 
     return res.json({ message: "Secret deleted successfully." });
   } catch (error) {

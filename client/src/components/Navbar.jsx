@@ -12,6 +12,7 @@ import {
   Settings2,
   Server,
   Bug,
+  History,
 } from "lucide-react";
 import "./Navbar.css";
 
@@ -74,6 +75,11 @@ function Navbar() {
           Secrets Vault
         </NavLink>
 
+        <NavLink to="/audit-logs" className={linkClass}>
+          <History size={20} />
+          Audit Logs
+        </NavLink>
+
         <a href="/apis#add-api" className="sidebar-link">
           <PlusCircle size={20} />
           Add API
@@ -81,7 +87,11 @@ function Navbar() {
       </nav>
 
       <div className="sidebar-bottom">
-        <button className="logout-button" onClick={handleLogout}>
+        <button
+          type="button"
+          className="logout-button"
+          onClick={handleLogout}
+        >
           <LogOut size={20} />
           Logout
         </button>
