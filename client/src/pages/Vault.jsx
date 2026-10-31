@@ -32,6 +32,7 @@ const emptyForm = {
   environment: "Development",
   apiKey: "",
   expiresAt: "",
+  rotationReminderDays: 90,
 };
 
 function Vault() {
@@ -167,47 +168,95 @@ function Vault() {
 
     return days >= 0 && days <= 30;
   }).length;
+  const getRotationInfo = (secret) => {
+  const baseline = secret.lastRotatedAt || secret.createdAt;
+
+  if (!baseline) {
+    return {
+      dueDate: null,
+      status: "Unknown",
+    };
+  }
+
+  const dueDate = new Date(baseline);
+dueDate.setDate(
+  dueDate.getDate() + (Number(secret.rotationReminderDays) || 90)
+);
+
+// Normalize both dates to midnight before comparing.
+dueDate.setHours(0, 0, 0, 0);
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+  const daysRemaining = Math.ceil(
+    (dueDate - today) / (1000 * 60 * 60 * 24)
+  );
+
+  if (daysRemaining < 0) {
+    return { dueDate, status: "Overdue" };
+  }
+
+  if (daysRemaining <= 30) {
+    return { dueDate, status: "Due Soon" };
+  }
+
+  return { dueDate, status: "Up to Date" };
+};
+const rotationDueSoonCount = secrets.filter(
+  (secret) =>
+    (secret.status || "active") === "active" &&
+    getRotationInfo(secret).status === "Due Soon"
+).length;
+
+
+const rotationOverdueCount = secrets.filter(
+  (secret) =>
+    (secret.status || "active") === "active" &&
+    getRotationInfo(secret).status === "Overdue"
+).length;
 
   async function createSecret(event) {
-    event.preventDefault();
-    setError("");
-    setNotice("");
+  event.preventDefault();
+  setError("");
+  setNotice("");
 
-    if (
-      !form.serviceName.trim() ||
-      !form.project.trim() ||
-      !form.apiKey
-    ) {
-      setError("Service, project, and API key are required.");
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      const payload = {
-        ...form,
-        expiresAt: form.expiresAt || null,
-      };
-
-      const data = await apiRequest("", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-
-      setForm(emptyForm);
-      setShowForm(false);
-      setNotice(
-        data.message || "Secret encrypted and saved successfully."
-      );
-
-      await loadSecrets();
-    } catch (err) {
-      setError(err.message || "Could not save the secret.");
-    } finally {
-      setSaving(false);
-    }
+  if (
+    !form.serviceName.trim() ||
+    !form.project.trim() ||
+    !form.apiKey
+  ) {
+    setError("Service, project, and API key are required.");
+    return;
   }
+
+  setSaving(true);
+
+  try {
+    const payload = {
+      ...form,
+      rotationReminderDays: Number(form.rotationReminderDays || 90),
+      expiresAt: form.expiresAt || null,
+    };
+
+    const data = await apiRequest("", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    setForm(emptyForm);
+    setShowForm(false);
+    setNotice(
+      data.message || "Secret encrypted and saved successfully."
+    );
+
+    await loadSecrets();
+  } catch (err) {
+    setError(err.message || "Could not save the secret.");
+  } finally {
+    setSaving(false);
+  }
+}
 
   async function toggleReveal(secret) {
     setError("");
@@ -437,30 +486,46 @@ function Vault() {
         )}
 
         <section className="vault-summary">
-          <article className="vault-stat-card">
-            <div className="vault-stat-icon">
-              <KeyRound size={21} />
-            </div>
-            <span>Total Secrets</span>
-            <strong>{secrets.length}</strong>
-          </article>
+  <article className="vault-stat-card">
+    <div className="vault-stat-icon">
+      <KeyRound size={21} />
+    </div>
+    <span>Total Secrets</span>
+    <strong>{secrets.length}</strong>
+  </article>
 
-          <article className="vault-stat-card">
-            <div className="vault-stat-icon">
-              <ShieldCheck size={21} />
-            </div>
-            <span>Active Credentials</span>
-            <strong>{activeCount}</strong>
-          </article>
+  <article className="vault-stat-card">
+    <div className="vault-stat-icon">
+      <ShieldCheck size={21} />
+    </div>
+    <span>Active Credentials</span>
+    <strong>{activeCount}</strong>
+  </article>
 
-          <article className="vault-stat-card">
-            <div className="vault-stat-icon">
-              <CalendarClock size={21} />
-            </div>
-            <span>Expiring Soon</span>
-            <strong>{expiringCount}</strong>
-          </article>
-        </section>
+  <article className="vault-stat-card">
+    <div className="vault-stat-icon">
+      <CalendarClock size={21} />
+    </div>
+    <span>Expiring Soon</span>
+    <strong>{expiringCount}</strong>
+  </article>
+
+  <article className="vault-stat-card">
+    <div className="vault-stat-icon">
+      <RefreshCw size={21} />
+    </div>
+    <span>Rotation Due Soon</span>
+    <strong>{rotationDueSoonCount}</strong>
+  </article>
+
+  <article className="vault-stat-card">
+    <div className="vault-stat-icon">
+      <LockKeyhole size={21} />
+    </div>
+    <span>Rotation Overdue</span>
+    <strong>{rotationOverdueCount}</strong>
+  </article>
+</section>
 
         {showForm && (
           <section className="response-card vault-form-card">
@@ -531,6 +596,20 @@ function Vault() {
                   onChange={updateForm}
                 />
               </label>
+              <label>
+  Rotation reminder
+  <select
+    name="rotationReminderDays"
+    value={form.rotationReminderDays}
+    onChange={updateForm}
+  >
+    <option value={30}>Every 30 days</option>
+    <option value={60}>Every 60 days</option>
+    <option value={90}>Every 90 days</option>
+    <option value={180}>Every 180 days</option>
+    <option value={365}>Every year</option>
+  </select>
+</label>
 
               <div className="vault-form-actions">
                 <button
@@ -815,10 +894,12 @@ function Vault() {
                   <tr>
                     <th>Service</th>
                     <th>Project</th>
-                    <th>Environment</th>
+                   <th>Environment</th>
                     <th>Credential</th>
-                    <th>Expiry</th>
-                    <th>Actions</th>
+                    <th>Rotation Status</th>
+                      <th>Rotation Due</th>
+                          <th>Expiry</th>
+                        <th>Actions</th>
                   </tr>
                 </thead>
 
@@ -855,7 +936,35 @@ function Vault() {
                           )}
                         </button>
                       </td>
+                        <td>
+  {(() => {
+    const rotation = getRotationInfo(secret);
 
+    return (
+      <span
+        className={`vault-rotation-status ${
+          rotation.status === "Overdue"
+            ? "overdue"
+            : rotation.status === "Due Soon"
+              ? "due-soon"
+              : "up-to-date"
+        }`}
+      >
+        {rotation.status}
+      </span>
+    );
+  })()}
+</td>
+
+<td>
+  {(() => {
+    const rotation = getRotationInfo(secret);
+
+    return rotation.dueDate
+      ? rotation.dueDate.toLocaleDateString()
+      : "Unknown";
+  })()}
+</td>  
                       <td>
                         {secret.expiresAt
                           ? new Date(

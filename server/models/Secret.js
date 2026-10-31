@@ -46,6 +46,30 @@ const secretSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Credential lifecycle management
+    lastRotatedAt: {
+      type: Date,
+      default: null,
+    },
+
+    lastAccessedAt: {
+      type: Date,
+      default: null,
+    },
+
+    rotationReminderDays: {
+      type: Number,
+      default: 90,
+      min: 1,
+      max: 365,
+    },
+
+    status: {
+      type: String,
+      enum: ["active", "revoked", "compromised"],
+      default: "active",
+    },
+
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
