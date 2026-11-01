@@ -15,7 +15,7 @@ import {
 import Navbar from "../components/Navbar";
 import "./AuditLogs.css";
 
-const API_URL = "http://localhost:5000/api/audit-logs";
+const API_URL = `${(import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "")}/api/audit-logs`;
 
 const ACTION_INFO = {
   SECRET_CREATED: {

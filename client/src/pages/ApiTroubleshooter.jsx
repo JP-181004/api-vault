@@ -87,7 +87,7 @@ function ApiTroubleshooter() {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/troubleshooter/${selectedApiId}`,
+        `${(import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "")}/api/troubleshooter/${selectedApiId}`,
         {
           method: "POST",
           headers: {
